@@ -21,3 +21,7 @@ To install: Place this .dll in the ...\Poly Bridge 2\BepInEx\plugins folder. You
 - Reset on main menu: If enabled will reset the timer when you go back to the main menu
 
 - Port: What port the Live Split server is using
+
+# Advanced Settings
+
+- IP: The IP the mod will connect to, use the default if the live split server is running on the same pc

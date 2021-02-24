@@ -19,7 +19,7 @@ namespace CampaignMod
 
         public const string pluginName = "Auto Split Mod";
 
-        public const string pluginVerson = "1.0.0";
+        public const string pluginVerson = "1.0.1";
 
         public ConfigDefinition modEnableDef = new ConfigDefinition(pluginName, "Enable/Disable Mod");
 
@@ -33,6 +33,8 @@ namespace CampaignMod
 
         public ConfigDefinition PortDef = new ConfigDefinition(pluginName, "Port");
 
+        public ConfigDefinition IPDef = new ConfigDefinition(pluginName, "IP");
+
         public ConfigEntry<bool> mEnabled;
 
         public ConfigEntry<bool> mSplitOnNext;
@@ -44,6 +46,8 @@ namespace CampaignMod
         public ConfigEntry<bool> mResetOnMainMenu;
 
         public ConfigEntry<int> mPort;
+
+        public ConfigEntry<string> mIP;
 
         public Socket LivesplitSocket;
 
@@ -82,6 +86,10 @@ namespace CampaignMod
             mPort = (ConfigEntry<int>)Config[PortDef];
             order--;
 
+            Config.Bind(IPDef, "127.0.0.1", new ConfigDescription("What the IP of the Live Split server is, use the default if the live split server is running on the same pc", null, new ConfigurationManagerAttributes { Order = order, IsAdvanced = true }));
+            mIP = (ConfigEntry<string>)Config[IPDef];
+            order--;
+
             Config.SettingChanged += onSettingChanged;
             onSettingChanged(null, null);
 
@@ -91,20 +99,16 @@ namespace CampaignMod
 
         public void onSettingChanged(object sender, EventArgs e)
         {
-            if (!CheckForCheating()) return;
-
-            string server = "127.0.0.1";
-
             try
             {
                 LivesplitSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                IPAddress ipAdd = IPAddress.Parse(server);
+                IPAddress ipAdd = IPAddress.Parse(mIP.Value);
                 IPEndPoint remoteEP = new IPEndPoint(ipAdd, mPort.Value);
-                LivesplitSocket.Connect(remoteEP);
+                if (!CheckForCheating()) LivesplitSocket.Connect(remoteEP);
             }
             catch
             {
-                if(GameUI.m_Instance != null) PopUpWarning.Display("Could not connect to Live Split server using port: " + mPort.Value + "\nAre you using the right port?");
+                if(GameUI.m_Instance != null) PopUpWarning.Display("Could not connect to Live Split server using port: " + mPort.Value + "\nAre you using the right ip and port?");
                 Debug.LogWarning("Could not connect to Live Split server using port: " + mPort.Value);
             }
         }
@@ -171,12 +175,22 @@ namespace CampaignMod
 
         public void sendStartOrSplit()
         {
+            if (!instance.LivesplitSocket.Connected)
+            {
+                if (GameUI.m_Instance != null) PopUpWarning.Display("Could not send start or split command to Live Split\nnot connected!");
+                return;
+            }
             byte[] byData = Encoding.ASCII.GetBytes("startorsplit\r\n");
             instance.LivesplitSocket.Send(byData);
         }
 
         public void sendReset()
         {
+            if (!instance.LivesplitSocket.Connected)
+            {
+                if (GameUI.m_Instance != null) PopUpWarning.Display("Could not send reset command to Live Split\nnot connected!");
+                return;
+            }
             byte[] byData = Encoding.ASCII.GetBytes("reset\r\n");
             instance.LivesplitSocket.Send(byData);
         }
