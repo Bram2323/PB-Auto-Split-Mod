@@ -19,7 +19,7 @@ namespace CampaignMod
 
         public const string pluginName = "Auto Split Mod";
 
-        public const string pluginVerson = "1.0.1";
+        public const string pluginVerson = "1.0.2";
 
         public ConfigDefinition modEnableDef = new ConfigDefinition(pluginName, "Enable/Disable Mod");
 
@@ -99,12 +99,14 @@ namespace CampaignMod
 
         public void onSettingChanged(object sender, EventArgs e)
         {
+            if (!CheckForCheating()) return;
+
             try
             {
                 LivesplitSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPAddress ipAdd = IPAddress.Parse(mIP.Value);
                 IPEndPoint remoteEP = new IPEndPoint(ipAdd, mPort.Value);
-                if (!CheckForCheating()) LivesplitSocket.Connect(remoteEP);
+                LivesplitSocket.Connect(remoteEP);
             }
             catch
             {

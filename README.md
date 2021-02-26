@@ -4,7 +4,7 @@ What it does: It adds an auto splitter for Live Split
 
 Game Version: 1.24+
 
-Dependencies: none, Poly Tech Framework is not required!
+Dependencies: Configuration Manager (https://github.com/BepInEx/BepInEx.ConfigurationManager)
 
 To install: Place this .dll in the ...\Poly Bridge 2\BepInEx\plugins folder. You also need to add the "Live Split Server" component to live split: https://github.com/LiveSplit/LiveSplit.Server
 
